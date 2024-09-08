@@ -1,6 +1,6 @@
 # pdqwalker
 
-##Multiprocesseing implementation of Meta's PDQ hasher, simplified:
+##Multiprocessing implementation of Meta's PDQ hasher, simplified:
 ##-no  image quality
 ##- no pdqdih
  
