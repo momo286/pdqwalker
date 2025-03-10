@@ -16,7 +16,7 @@ def hash_file(path):
         result = f"Error processing {path}: {e}"
     return result
  
-def compute_pdq_hashes(directory, output_hashes, num_processes):
+def compute_pdq_hashes(directory, num_processes):
     image_files = [os.path.join(dp, f) for dp, _, filenames in os.walk(directory) for f in filenames if f.endswith(('.jpg', '.jpeg', '.png'))]
     with multiprocessing.Pool(processes=num_processes) as pool:
         results = pool.map(hash_file, image_files)
@@ -29,7 +29,7 @@ def main():
     parser.add_argument("--num-processes", type=int, default=(multiprocessing.cpu_count()), help="Number of processes to use for hashing.")
     args = parser.parse_args()
     dir=args.directory
-    compute_pdq_hashes(args.directory, args.output, args.num_processes)
+    compute_pdq_hashes(args.directory, args.num_processes)
 
 if __name__ == "__main__":
     main()
