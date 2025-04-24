@@ -1,34 +1,44 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import sys
 import os
 import multiprocessing
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
+
+# Add parent path for importing local modules
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from pdqhashing.hasher.pdq_hasher import PDQHasher
 
 def hash_file(path):
-    pdq_hasher = PDQHasher()
     try:
-        hash_data = pdq_hasher.fromFile(path)
-        hash_code = hash_data.getHash()  
-        result = f"{str(hash_code)},{path}"
+        hasher = PDQHasher()
+        hash_data = hasher.fromFile(path)
+        hash_code = hash_data.getHash()
+        return f"{hash_code},{path}"
     except Exception as e:
-        result = f"Error processing {path}: {e}"
-    return result
- 
+        return f"Error processing {path}: {e}"
+
+def find_image_files(directory):
+    supported_exts = ('.jpg', '.jpeg', '.png')
+    return [
+        os.path.join(root, file)
+        for root, _, files in os.walk(directory)
+        for file in files
+        if file.lower().endswith(supported_exts)
+    ]
+
 def compute_pdq_hashes(directory, num_processes):
-    image_files = [os.path.join(dp, f) for dp, _, filenames in os.walk(directory) for f in filenames if f.endswith(('.jpg', '.jpeg', '.png'))]
+    image_files = find_image_files(directory)
     with multiprocessing.Pool(processes=num_processes) as pool:
         results = pool.map(hash_file, image_files)
-    for result in results:
-        print(result)
+    print("\n".join(results))
 
 def main():
     parser = argparse.ArgumentParser(description="Compute PDQ hashes for image files.")
     parser.add_argument("directory", help="Directory to recursively process.")
-    parser.add_argument("--num-processes", type=int, default=(multiprocessing.cpu_count()), help="Number of processes to use for hashing.")
+    parser.add_argument("--num-processes", type=int, default=multiprocessing.cpu_count(),
+                        help="Number of processes to use for hashing.")
     args = parser.parse_args()
-    dir=args.directory
+
     compute_pdq_hashes(args.directory, args.num_processes)
 
 if __name__ == "__main__":
